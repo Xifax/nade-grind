@@ -104,6 +104,7 @@ class Segment:
     text_en: Translation
     text_es: Translation
     urls: URLs
+    name: str | None
 
     @property
     def duration_ms(self) -> int:
@@ -124,6 +125,7 @@ class Segment:
             text_en=Translation.from_dict(d["textEn"]),
             text_es=Translation.from_dict(d["textEs"]),
             urls=URLs.from_dict(d["urls"]),
+            name=d["name"],
         )
 
 
@@ -160,8 +162,12 @@ class NadeshikoClient:
             while len(results) < n:
                 take = min(MAX_TAKE, n - len(results))
                 body: dict = {
-                    "query": {"search": query, "exactMatch": exact_match},
+                    "query": {
+                        "search": query,
+                        "exactMatch": exact_match,
+                    },
                     "take": take,
+                    "include": ["media"],
                 }
                 if cursor:
                     body["cursor"] = cursor
@@ -178,6 +184,14 @@ class NadeshikoClient:
 
                 data = resp.json()
                 for raw in data["segments"]:
+                    try:
+                        name = next(iter(data["includes"]["media"].items()))[1][
+                            "nameJa"
+                        ]
+                    except:
+                        name = "NoName"
+
+                    raw["name"] = name
                     results.append(Segment.from_dict(raw))
 
                 pagination = data["pagination"]

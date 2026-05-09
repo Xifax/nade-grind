@@ -44,6 +44,7 @@ class SegmentResult:
     media_public_id: str
     start_ms: int
     end_ms: int
+    # name: str | None
 
     def display(self, index: int) -> None:
         duration_s = (self.end_ms - self.start_ms) / 1000
@@ -72,6 +73,7 @@ def _parse_segment(raw: dict) -> SegmentResult:
         media_public_id=raw["mediaPublicId"],
         start_ms=raw["startTimeMs"],
         end_ms=raw["endTimeMs"],
+        # name=raw["name"],
     )
 
 
@@ -111,6 +113,7 @@ def search(
                     "exactMatch": exact_match,
                 },
                 "take": take,
+                "include": ["media"],
             }
             if cursor:
                 body["cursor"] = cursor
@@ -120,7 +123,12 @@ def search(
             data = response.json()
 
             for raw in data["segments"]:
-                results.append(_parse_segment(raw))
+                # name = data["includes"]["media"]["property1"]["nameJa"]
+
+                # name = next(iter(data["includes"]["media"].items()))[1]["nameJa"]
+                # raw["name"] = name
+                segment = _parse_segment(raw)
+                results.append(segment)
 
             pagination = data["pagination"]
             if not pagination["hasMore"] or not pagination["cursor"]:

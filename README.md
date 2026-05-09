@@ -1,14 +1,19 @@
 # Nadeshiko Anki Grind
 
 ```bash
-# specify Anki decks & fields in src/export.py:107, 117
+# specify Anki decks & fields in src/export.py:107,117 to grind
 uv run src/export.py
+# set key in .env or in the shell
+export NADESHIKO_API_KEY=...
 # grind via Nadeshiko api
-export NADESHIKO_API_KEY = ...
 uv run src/tui.py words.txt
 ```
 
 ## TODO:
+
+[x] key to .env
+[ ] fix source name
+[ ] add cool info
 
 - images
 - basic stats

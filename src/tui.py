@@ -21,6 +21,7 @@ import random
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -324,7 +325,7 @@ Screen {
 
         ep_str = f"ep {seg.episode}" if seg.episode else "movie/special"
         self.query_one("#lbl-media", Label).update(
-            f"{seg.media_public_id} · {ep_str} · {seg.duration_ms / 1000:.1f}s"
+            f"{seg.name} · {ep_str} · {seg.duration_ms / 1000:.1f}s"
         )
 
         # Rebuild token chips — mount all at once to avoid layout thrash
@@ -388,8 +389,11 @@ def main() -> None:
         print(f"Error: file not found: {args.words_file}", file=sys.stderr)
         sys.exit(1)
 
-    api_key = args.key
+    load_dotenv()
+    api_key = os.environ.get("NADESHIKO_API_KEY")
+
     if not api_key:
+        api_key = args.key
         try:
             api_key = input("Nadeshiko API key: ").strip()
         except (EOFError, KeyboardInterrupt):
