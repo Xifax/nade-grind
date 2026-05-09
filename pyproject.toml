@@ -1,7 +1,7 @@
 [project]
-name = "anki-export"
+name = "nadeshiko-anki-export-grind"
 version = "0.1.0"
-description = "Add your description here"
+description = "Export difficult cards from Anki and grind via Nadeshiko examples"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
