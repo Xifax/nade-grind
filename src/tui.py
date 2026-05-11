@@ -19,6 +19,7 @@ import itertools
 import os
 import random
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -176,6 +177,7 @@ Screen {
         Binding("n", "next_sentence", "Next", show=False),
         Binding("r", "replay", "Replay audio", show=True),
         Binding("t", "toggle", "Toggle random|seq", show=True),
+        Binding("e", "new_example", "New example", show=True),
         Binding("q", "quit", "Quit", show=True),
     ]
 
@@ -190,6 +192,8 @@ Screen {
         self._random = True
         self._cycle = itertools.cycle(self._words)
         self._current_segment: Segment | None = None
+        self._segments: list[Segment] = []
+        self._cycle_segments: Iterator[Segment] | None = None
 
     # ── layout ──────────────────────────────────────────────────────────────
 
@@ -199,6 +203,7 @@ Screen {
         with Horizontal(id="stats-bar"):
             yield Label("fetched: 0", id="lbl-count")
             yield Label("mode: random", id="lbl-mode")
+            yield Label("examples: 0", id="lbl-example-count")
             yield Label("", id="lbl-word")
             yield Label("", id="lbl-media")
 
@@ -242,7 +247,7 @@ Screen {
 
     def action_next_sentence(self) -> None:
         if not self.is_loading:
-            self._fetch_random()
+            self._fetch_next_or_random()
 
     def action_replay(self) -> None:
         if self._current_segment:
@@ -252,6 +257,10 @@ Screen {
         self._random = not self._random
         label = "mode: random" if self._random else "mode: sequence"
         self.query_one("#lbl-mode", Label).update(label)
+
+    def action_new_example(self) -> None:
+        if not self.is_loading:
+            self._new_example()
 
     # ── events ──────────────────────────────────────────────────────────────
 
@@ -263,21 +272,31 @@ Screen {
     def _on_replay(self) -> None:
         self.action_replay()
 
-    @on(Button.Pressed, "#btn-toggle")
-    def _on_toggle(self) -> None:
-        self.action_toggle()
-
     # ── worker ──────────────────────────────────────────────────────────────
 
     @work(exclusive=True, thread=False)
-    async def _fetch_random(self) -> None:
+    async def _new_example(self) -> None:
+        if not self._segments:
+            return
+
+        if len(self._segments) < 4:
+            segment = self._cycle_segments.__next__()
+        else:
+            segment = random.choice(self._segments)
+
+        self._current_segment = segment
+        self.fetch_count += 1
+        await self._show_segment(segment)
+        self._play(segment.urls.audio_url)
+        self.is_loading = False
+
+    @work(exclusive=True, thread=False)
+    async def _fetch_next_or_random(self) -> None:
         if self._random:
             word = random.choice(self._words)
         else:
             word = self._cycle.__next__()
-        # word = random.choice(self._words)
-        # OR
-        # word = self._cycle.__next__()
+
         self.current_word = word
         self.is_loading = True
         self._log(f"Searching for [bold cyan]{word}[/bold cyan] …")
@@ -298,7 +317,17 @@ Screen {
             self.is_loading = False
             return
 
-        segment = random.choice(segments)
+        # save segments if user wants different example
+        self._segments = segments
+        self._cycle_segments = itertools.cycle(self._segments)
+        self.query_one("#lbl-example-count", Label).update(f"examples: {len(segments)}")
+
+        # cycle through segments in order, if not a lot of them
+        if len(self._segments) < 4:
+            segment = self._cycle_segments.__next__()
+        else:
+            segment = random.choice(segments)
+
         self._current_segment = segment
         self.fetch_count += 1
         await self._show_segment(segment)
