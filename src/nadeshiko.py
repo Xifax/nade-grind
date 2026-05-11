@@ -8,7 +8,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 import httpx
+from cashews import cache
 
+cache.setup("disk://.cache")
 BASE_URL = "https://api.nadeshiko.co"
 SEARCH_URL = f"{BASE_URL}/v1/search"
 MAX_TAKE = 50
@@ -147,6 +149,7 @@ class NadeshikoClient:
         self._headers = {"Authorization": f"Bearer {api_key}"}
         self._timeout = timeout
 
+    @cache(ttl="10d")
     async def search(
         self,
         query: str,
@@ -183,11 +186,11 @@ class NadeshikoClient:
                     )
 
                 data = resp.json()
+                media = iter(data["includes"]["media"].items())
                 for raw in data["segments"]:
                     try:
-                        name = next(iter(data["includes"]["media"].items()))[1][
-                            "nameJa"
-                        ]
+                        # Get media name
+                        name = next(media)[1]["nameJa"]
                     except:
                         name = "NoName"
 

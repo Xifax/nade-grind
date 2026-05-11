@@ -208,7 +208,7 @@ Screen {
         yield Header(show_clock=True)
 
         with Horizontal(id="stats-bar"):
-            yield Label("fetched: 0", id="lbl-count")
+            yield Label("fetched total: 0", id="lbl-count")
             yield Label("mode: random", id="lbl-mode")
             yield Label("examples: 0", id="lbl-example-count")
             yield Label("", id="lbl-word")
@@ -245,7 +245,7 @@ Screen {
             self.remove_class("loading")
 
     def watch_fetch_count(self, count: int) -> None:
-        self.query_one("#lbl-count", Label).update(f"fetched: {count}")
+        self.query_one("#lbl-count", Label).update(f"fetched total: {count}")
 
     def watch_current_word(self, word: str) -> None:
         self.query_one("#lbl-word", Label).update(f"🔍 {word}" if word else "")
@@ -296,6 +296,12 @@ Screen {
             segment = self._cycle_segments.__next__()
         else:
             segment = random.choice(self._segments)
+
+        # Update show name
+        ep_str = f"ep {segment.episode}" if segment.episode else "movie/special"
+        self.query_one("#lbl-media", Label).update(
+            f"{segment.name} · {ep_str} · {segment.duration_ms / 1000:.1f}s"
+        )
 
         self._current_segment = segment
         self.fetch_count += 1
@@ -358,14 +364,16 @@ Screen {
         self.query_one("#ja-text", Static).display = True
         self.query_one("#en-text", Static).display = True
 
-        self.query_one("#ja-text", Static).update(seg.text_ja.content)
+        # Don't need spaces for JP sentence
+        content = seg.text_ja.content.replace(" ", "")
+        self.query_one("#ja-text", Static).update(content)
         self.query_one("#en-text", Static).update(seg.text_en.content)
 
-        audio_url = seg.urls.audio_url
+        image_url = seg.urls.image_url
         self.query_one("#url-bar", Static).update(
-            f"[dim]{audio_url[:80]}…[/dim]"
-            if len(audio_url) > 80
-            else f"[dim]{audio_url}[/dim]"
+            f"[dim]{image_url[:80]}…[/dim]"
+            if len(image_url) > 80
+            else f"[dim]{image_url}[/dim]"
         )
 
         ep_str = f"ep {seg.episode}" if seg.episode else "movie/special"
