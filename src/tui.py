@@ -22,6 +22,7 @@ import sys
 from collections.abc import Iterator
 from pathlib import Path
 
+import pyperclip
 from dotenv import load_dotenv
 from textual import on, work
 from textual.app import App, ComposeResult
@@ -116,9 +117,12 @@ Screen {
 #tokens-scroll {
     height: 3;
     margin-top: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 #tokens-row {
-    height: 1;
+    height: auto;
+    width: auto;
     align: left middle;
     padding: 0 1;
 }
@@ -127,7 +131,8 @@ Screen {
     color: $text;
     padding: 0 1;
     margin: 0 1 0 0;
-    height: 1;
+    height: auto;
+    width: auto;
 }
 .token-chip-verb   { background: #2d4a3e; color: #7ecba1; }
 .token-chip-noun   { background: #2a3f5e; color: #7ab4f5; }
@@ -171,6 +176,7 @@ Screen {
     border: round $warning;
 }
 """
+    HISTORY_FILE = Path("history.txt")
 
     BINDINGS = [
         Binding("space", "next_sentence", "Next", show=True),
@@ -191,6 +197,7 @@ Screen {
         self._client = client
         self._random = True
         self._cycle = itertools.cycle(self._words)
+        self._history: list[str] = []
         self._current_segment: Segment | None = None
         self._segments: list[Segment] = []
         self._cycle_segments: Iterator[Segment] | None = None
@@ -272,6 +279,12 @@ Screen {
     def _on_replay(self) -> None:
         self.action_replay()
 
+    async def on_unmount(self) -> None:
+        """Called when the app is shutting down."""
+        # Append self.history list to history.txt file
+        with self.HISTORY_FILE.open("a", encoding="utf-8") as f:
+            f.write("\n".join(self._history))
+
     # ── worker ──────────────────────────────────────────────────────────────
 
     @work(exclusive=True, thread=False)
@@ -298,6 +311,9 @@ Screen {
             word = self._cycle.__next__()
 
         self.current_word = word
+        pyperclip.copy(word)
+        self._history.append(word)
+
         self.is_loading = True
         self._log(f"Searching for [bold cyan]{word}[/bold cyan] …")
 

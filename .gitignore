@@ -8,5 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
-words.txt
 .env
+words.txt
+history.txt
