@@ -1,6 +1,6 @@
 # Nadeshiko Anki Grind
 
-![demo](/home/xifax/repos/nadeshiko_anki_export/data/demo.svg)
+![demo](data/demo.svg)
 
 ```bash
 # specify Anki decks & fields in src/export.py:107,117 to grind
