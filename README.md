@@ -1,5 +1,7 @@
 # Nadeshiko Anki Grind
 
+![demo](/home/xifax/repos/nadeshiko_anki_export/data/demo.svg)
+
 ```bash
 # specify Anki decks & fields in src/export.py:107,117 to grind
 uv run src/export.py
@@ -12,11 +14,10 @@ uv run src/tui.py words.txt
 ## TODO:
 
 [x] key to .env
-[ ] fix source name
+[x] fix source name
+[x] images
+[x] basic stats
+[x] fetch different example for this item hotkey
+[x] find definition | copy to clipboard | etc, context
 [ ] add cool info
-
-- images
-- basic stats
-- fetch different example for this item hotkey
-- open in YouGlish
-- find definition | copy to clipboard | etc, context
+[ ] open in YouGlish

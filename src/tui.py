@@ -34,6 +34,8 @@ from textual.widgets import Button, Footer, Header, Label, RichLog, Static
 import audio
 from nadeshiko import NadeshikoClient, NadeshikoError, Segment
 
+REQUIRED_EXAMPLE_CYCLE_COUNT = 5
+
 # ── POS → chip class ────────────────────────────────────────────────────────
 
 
@@ -283,7 +285,7 @@ Screen {
         """Called when the app is shutting down."""
         # Append self.history list to history.txt file
         with self.HISTORY_FILE.open("a", encoding="utf-8") as f:
-            f.write("\n".join(self._history))
+            f.write("\n".join(self._history) + "\n")
 
     # ── worker ──────────────────────────────────────────────────────────────
 
@@ -292,7 +294,7 @@ Screen {
         if not self._segments:
             return
 
-        if len(self._segments) < 4:
+        if len(self._segments) < REQUIRED_EXAMPLE_CYCLE_COUNT:
             segment = self._cycle_segments.__next__()
         else:
             segment = random.choice(self._segments)
