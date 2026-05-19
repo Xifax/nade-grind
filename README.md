@@ -1,5 +1,13 @@
 # Nadeshiko Anki Grind
 
+Idea:
+
+0. query grindable Anki cards based on a specific criteria (leeches, low ease,
+   new cards, old cards, etc)
+1. export those cards from Anki via AnkiConnect to plain text
+2. grind them using Nadeshiko examples, randomly or in sequence
+3. save history/session for further evaluation and LLM summary
+
 ![demo](data/demo.svg)
 
 ```bash
@@ -19,8 +27,12 @@ uv run src/tui.py words.txt
 [x] basic stats
 [x] fetch different example for this item hotkey
 [x] find definition | copy to clipboard | etc, context
+[x] clickable tokens
+[ ] clickable image link
 [ ] add cool info
 [ ] open in YouGlish
+[ ] history shenanigans
+[ ] llm session export
 
 ## SUPER TODO:
 

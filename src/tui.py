@@ -389,6 +389,8 @@ TokenChip:hover {
         self.query_one("#lbl-example-count", Label).update(f"examples: {len(segments)}")
 
         # cycle through segments in order, if not a lot of them
+        # FIX: first sentence showing twice (check order and how __next__ is
+        # called and how cycle is initialized)
         if len(self._segments) < REQUIRED_EXAMPLE_CYCLE_COUNT:
             segment = self._cycle_segments.__next__()
         else:
