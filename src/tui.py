@@ -30,6 +30,7 @@ from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, ScrollableContainer
+from textual.message import Message
 from textual.reactive import reactive
 from textual.widgets import Button, Footer, Header, Label, RichLog, Static
 
@@ -179,6 +180,15 @@ Screen {
 .loading #card {
     border: round $warning;
 }
+
+/* clickable words */
+TokenChip {
+    pointer: pointer;
+}
+TokenChip:hover {
+    background: $accent-darken-1;
+    color: $text;
+}
 """
     HISTORY_FILE = Path("history.txt")
 
@@ -286,6 +296,7 @@ Screen {
     async def on_unmount(self) -> None:
         """Called when the app is shutting down."""
         # Append self.history list to history.txt file
+        # TODO: use occurences for custom cycling/random query modes
         with self.HISTORY_FILE.open("a", encoding="utf-8") as f:
             f.write("\n".join(self._history) + "\n")
 
@@ -313,6 +324,34 @@ Screen {
         self._play(segment.urls.audio_url)
         self.is_loading = False
         self._history.append(self.current_word)
+
+    @work(exclusive=True, thread=False)
+    async def _fetch_word(self, word: str) -> None:
+        self.current_word = word
+        self.is_loading = True
+        self._log(f"Looking up token [bold cyan]{word}[/bold cyan] …")
+        try:
+            segments = await self._client.search(word, n=50, exact_match=False)
+        except NadeshikoError as exc:
+            self._log(f"[red]API error {exc.status}: {exc.code} — {exc.detail}[/red]")
+            self.is_loading = False
+            return
+        except Exception as exc:
+            self._log(f"[red]Request failed: {exc}[/red]")
+            self.is_loading = False
+            return
+
+        if not segments:
+            self._log(f"[yellow]No results for [bold]{word}[/bold][/yellow]")
+            self.is_loading = False
+            return
+
+        segment = random.choice(segments)
+        self._current_segment = segment
+        self.fetch_count += 1
+        await self._show_segment(segment)
+        self._play(segment.urls.audio_url)
+        self.is_loading = False
 
     @work(exclusive=True, thread=False)
     async def _fetch_next_or_random(self) -> None:
@@ -390,8 +429,9 @@ Screen {
         token_row = self.query_one("#tokens-row", Horizontal)
         await token_row.remove_children()
         chips = [
-            Static(
-                f"{tok.surface}[dim]({tok.reading})[/dim]",
+            TokenChip(
+                tok.surface,
+                tok.reading,
                 classes=f"token-chip {_token_class(tok.pos)}",
             )
             for tok in (seg.text_ja.tokens or [])
@@ -405,6 +445,11 @@ Screen {
             f"[green]✓[/green] [bold]{seg.text_ja.content}[/bold] "
             f"— [dim]{seg.text_en.content}[/dim]"
         )
+
+    def on_token_chip_clicked(self, event: TokenChip.Clicked) -> None:
+        event.stop()
+        if not self.is_loading:
+            self._fetch_word(event.surface)
 
     def _play(self, url: str) -> None:
         audio.play_url(
@@ -465,6 +510,22 @@ def main() -> None:
 
     print(f"Loaded {len(words)} word(s) from {args.words_file}")
     NadeshikoApp(words=words, client=client).run()
+
+
+class TokenChip(Static):
+    """A clickable token chip that triggers a search for that token's surface form."""
+
+    class Clicked(Message):
+        def __init__(self, surface: str) -> None:
+            super().__init__()
+            self.surface = surface
+
+    def __init__(self, surface: str, reading: str, **kwargs) -> None:
+        super().__init__(f"{surface}[dim]({reading})[/dim]", **kwargs)
+        self._surface = surface
+
+    def on_click(self) -> None:
+        self.post_message(self.Clicked(self._surface))
 
 
 if __name__ == "__main__":
