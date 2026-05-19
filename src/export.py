@@ -134,8 +134,6 @@ def main():
             continue
 
         word = card["fields"][field_name]["value"]
-        # reading = card["fields"].get("Reading", {}).get("value", "")
-        # print(f"{word} ({reading}) — interval: {card['interval']}d")
         word = BeautifulSoup(word, "html.parser").text.strip()
         print(f"{word} ~ interval: {card['interval']}d")
 

@@ -191,7 +191,7 @@ class NadeshikoClient:
                     try:
                         # Get media name
                         name = next(media)[1]["nameJa"]
-                    except:
+                    except Exception:
                         name = "NoName"
 
                     raw["name"] = name

@@ -21,3 +21,11 @@ uv run src/tui.py words.txt
 [x] find definition | copy to clipboard | etc, context
 [ ] add cool info
 [ ] open in YouGlish
+
+## SUPER TODO:
+
+Use history or stats to ignore (or vice versa, repeat) previously appeared
+words. For example:
+
+1. skip a word if n (occurence) > 1 (in history)
+2. increase frequency of words with n (occurence) > 1 (in history)

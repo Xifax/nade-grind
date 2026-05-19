@@ -34,7 +34,7 @@ from textual.widgets import Button, Footer, Header, Label, RichLog, Static
 import audio
 from nadeshiko import NadeshikoClient, NadeshikoError, Segment
 
-REQUIRED_EXAMPLE_CYCLE_COUNT = 5
+REQUIRED_EXAMPLE_CYCLE_COUNT = 7
 
 # ── POS → chip class ────────────────────────────────────────────────────────
 
@@ -310,6 +310,7 @@ Screen {
         await self._show_segment(segment)
         self._play(segment.urls.audio_url)
         self.is_loading = False
+        self._history.append(self.current_word)
 
     @work(exclusive=True, thread=False)
     async def _fetch_next_or_random(self) -> None:
@@ -347,7 +348,7 @@ Screen {
         self.query_one("#lbl-example-count", Label).update(f"examples: {len(segments)}")
 
         # cycle through segments in order, if not a lot of them
-        if len(self._segments) < 4:
+        if len(self._segments) < REQUIRED_EXAMPLE_CYCLE_COUNT:
             segment = self._cycle_segments.__next__()
         else:
             segment = random.choice(segments)
