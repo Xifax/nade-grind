@@ -1,5 +1,6 @@
 """
-Nadeshiko TUI — random sentence drill from a word list.
+Nadeshiko Drill.
+Drill word list using examples from Nadeshiko API.
 
 Usage:
     python app.py words.txt                         # prompts for API key
@@ -7,9 +8,10 @@ Usage:
     python app.py words.txt --key YOUR_KEY
 
 Keyboard shortcuts:
-    Space / N   — fetch next sentence
-    R           — replay audio
-    Q / Ctrl+C  — quit
+    Space / N   ~ fetch next/random word and example sentence
+    E           ~ get another example for current word
+    R           ~ replay audio
+    Q / Ctrl+C  ~ quit
 """
 
 from __future__ import annotations
@@ -184,7 +186,7 @@ Screen {
         Binding("space", "next_sentence", "Next", show=True),
         Binding("n", "next_sentence", "Next", show=False),
         Binding("r", "replay", "Replay audio", show=True),
-        Binding("t", "toggle", "Toggle random|seq", show=True),
+        Binding("t", "toggle_order", "Toggle random|seq", show=True),
         Binding("e", "new_example", "New example", show=True),
         Binding("q", "quit", "Quit", show=True),
     ]
@@ -202,7 +204,7 @@ Screen {
         self._history: list[str] = []
         self._current_segment: Segment | None = None
         self._segments: list[Segment] = []
-        self._cycle_segments: Iterator[Segment] | None = None
+        self._cycle_segments: Iterator[Segment] = iter([])
 
     # ── layout ──────────────────────────────────────────────────────────────
 
@@ -262,7 +264,7 @@ Screen {
         if self._current_segment:
             self._play(self._current_segment.urls.audio_url)
 
-    def action_toggle(self) -> None:
+    def action_toggle_order(self) -> None:
         self._random = not self._random
         label = "mode: random" if self._random else "mode: sequence"
         self.query_one("#lbl-mode", Label).update(label)
@@ -329,7 +331,7 @@ Screen {
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._log(f"[red]API error {exc.status}: {exc.code} — {exc.detail}[/red]")
+            self._log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
             self.is_loading = False
             return
         except Exception as exc:
@@ -427,7 +429,7 @@ def load_words(path: Path) -> list[str]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Nadeshiko TUI — random sentence drill from a word list",
+        description="Nadeshiko Drill. Drill word list using examples from Nadeshiko API.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
