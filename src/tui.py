@@ -198,6 +198,7 @@ TokenChip:hover {
         Binding("r", "replay", "Replay audio", show=True),
         Binding("t", "toggle_order", "Toggle random|seq", show=True),
         Binding("e", "new_example", "New example", show=True),
+        Binding("d", "delete_word", "Delete word", show=True),
         Binding("q", "quit", "Quit", show=True),
     ]
 
@@ -205,11 +206,14 @@ TokenChip:hover {
     current_word: reactive[str] = reactive("")
     is_loading: reactive[bool] = reactive(False)
 
-    def __init__(self, words: list[str], client: NadeshikoClient, **kwargs) -> None:
+    def __init__(
+        self, words: list[str], client: NadeshikoClient, words_file: Path, **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self._words = words
         self._client = client
         self._random = True
+        self._words_file = words_file
         self._cycle = itertools.cycle(self._words)
         self._history: list[str] = []
         self._current_segment: Segment | None = None
@@ -249,8 +253,6 @@ TokenChip:hover {
         yield RichLog(id="log-panel", highlight=True, markup=True, max_lines=200)
         yield Footer()
 
-    # ── watchers ────────────────────────────────────────────────────────────
-
     def watch_is_loading(self, loading: bool) -> None:
         self.query_one("#btn-next", Button).disabled = loading
         if loading:
@@ -283,6 +285,10 @@ TokenChip:hover {
         if not self.is_loading:
             self._new_example()
 
+    def action_delete_word(self) -> None:
+        if not self.is_loading:
+            self._delete_word()
+
     # ── events ──────────────────────────────────────────────────────────────
 
     @on(Button.Pressed, "#btn-next")
@@ -301,6 +307,14 @@ TokenChip:hover {
             f.write("\n".join(self._history) + "\n")
 
     # ── worker ──────────────────────────────────────────────────────────────
+
+    @work(exclusive=True, thread=False)
+    async def _delete_word(self) -> None:
+        self._words.remove(self.current_word)
+        self._words_file.write_text("\n".join(self._words))
+        self._log(
+            f"Removed [bold red]{self.current_word}[/bold red] from [yellow]{self._words_file}[/yellow]"
+        )
 
     @work(exclusive=True, thread=False)
     async def _new_example(self) -> None:
@@ -333,7 +347,8 @@ TokenChip:hover {
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._log(f"[red]API error {exc.status}: {exc.code} — {exc.detail}[/red]")
+            self._log(
+                f"[red]API error {exc.status}: {exc.code} — {exc.detail}[/red]")
             self.is_loading = False
             return
         except Exception as exc:
@@ -370,7 +385,8 @@ TokenChip:hover {
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
+            self._log(
+                f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
             self.is_loading = False
             return
         except Exception as exc:
@@ -386,7 +402,8 @@ TokenChip:hover {
         # save segments if user wants different example
         self._segments = segments
         self._cycle_segments = itertools.cycle(self._segments)
-        self.query_one("#lbl-example-count", Label).update(f"examples: {len(segments)}")
+        self.query_one("#lbl-example-count",
+                       Label).update(f"examples: {len(segments)}")
 
         # cycle through segments in order, if not a lot of them
         # FIX: first sentence showing twice (check order and how __next__ is
@@ -501,6 +518,11 @@ def main() -> None:
         api_key = args.key
         try:
             api_key = input("Nadeshiko API key: ").strip()
+            # Save to .env if it does not exist
+            if not os.path.exists(".env"):
+                with open(".env", "a") as f:
+                    f.write(f"NADESHIKO_API_KEY={api_key}\n")
+
         except (EOFError, KeyboardInterrupt):
             sys.exit(0)
         if not api_key:
@@ -511,7 +533,7 @@ def main() -> None:
     client = NadeshikoClient(api_key)
 
     print(f"Loaded {len(words)} word(s) from {args.words_file}")
-    NadeshikoApp(words=words, client=client).run()
+    NadeshikoApp(words=words, client=client, words_file=args.words_file).run()
 
 
 class TokenChip(Static):
