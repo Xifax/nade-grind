@@ -1,0 +1,52 @@
+---
+
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+    <link rel="stylesheet" href="https://unpkg.com/magick.css">
+    <meta name="generator" content={Astro.generator} />
+    <title>Nadeshiko Grind</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Nadeshiko Grind</h1>
+      </header>
+      <section>
+        Tool to grind/shadow Japanese words & sentences using
+        <a href="https://nadeshiko.co">Nadeshiko</a>
+        anime examples.
+      </section>
+      <section>
+        <h3>Situation</h3>
+        <p>Imagine, you have tricky 日本語 words from different apps, that don't stick well in your memory.
+        You save them to Anki, print them on stickers, draw them on your bathroom walls, etc. Yet it helps little.</p>
+        <p>Once, a wise balding Esperanto man from YouTube told me, that sometimes you need to just grind the sentences:
+        repeat the words multiple times in different context, even if it's hard. </p>
+        <p>This nerdy TUI app allows you to do it. </p>
+        <p>It loads words from plain text and fetches (somewhat) relevant examples from Nadeshiko.co, with audio and sentence decomposition,
+          separately from static SRS cards. Again and again. That is all.</p>
+      </section>
+
+      <section>
+        <h3>Usage</h3>
+        <ol>
+          <li>Install from repo or download binary</li>
+          <li>Get your words in a plain text file: export from Anki, or save them into text file while you read/watch something</li>
+          <li>Launch app with the file as an argument</li>
+          <li>Go through words randomly or in saved order</li>
+          <li>If you encounter an unkown word in a sentence, you may click on it to get a specific example </li>
+          <li>Persist in your grind and remove the words you are fed up with from the list</li>
+          <li>Speak like a person from anime/dorama and fear nothing</li>
+        </ol>
+      </section>
+      <footer> </footer>
+    </main>
+  </body>
+</html>
