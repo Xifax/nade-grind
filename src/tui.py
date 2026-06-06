@@ -44,15 +44,18 @@ REQUIRED_EXAMPLE_CYCLE_COUNT = 7
 
 
 def _token_class(pos: str) -> str:
-    if "動詞" in pos:
-        return "token-chip-verb"
-    if "名詞" in pos:
-        return "token-chip-noun"
-    if "形容詞" in pos or "形状詞" in pos:
-        return "token-chip-adj"
-    if "副詞" in pos:
-        return "token-chip-adv"
-    return "token-chip-other"
+    token = "token-chip-"
+    match pos:
+        case "動詞":
+            return token + "verb"
+        case "名詞":
+            return token + "noun"
+        case "形容詞" | "形状詞":
+            return token + "adj"
+        case "副詞":
+            return token + "adv"
+        case _:
+            return token + "other"
 
 
 # ── App ─────────────────────────────────────────────────────────────────────
@@ -404,7 +407,7 @@ TokenChip:hover {
         self.query_one("#lbl-example-count", Label).update(f"examples: {len(segments)}")
 
         # cycle through segments in order, if not a lot of them
-        # FIX: first sentence showing twice (check order and how __next__ is
+        # FIX: (still!) sometimes first sentence showing twice (check order and how __next__ is
         # called and how cycle is initialized)
         if len(self._segments) < REQUIRED_EXAMPLE_CYCLE_COUNT:
             segment = self._cycle_segments.__next__()
