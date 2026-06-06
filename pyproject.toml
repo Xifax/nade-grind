@@ -9,6 +9,7 @@ dependencies = [
     "cashews[diskcache]>=7.5.0",
     "dotenv>=0.9.9",
     "httpx>=0.28.1",
+    "platformdirs>=4.9.6",
     "pygame>=2.6.1",
     "pyperclip>=1.11.0",
     "textual>=8.2.5",

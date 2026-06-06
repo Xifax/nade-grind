@@ -33,30 +33,14 @@ from textual.binding import Binding
 from textual.containers import Container, Horizontal, ScrollableContainer
 from textual.message import Message
 from textual.reactive import reactive
+from textual.theme import Theme
 from textual.widgets import Button, Footer, Header, Label, RichLog, Static
 
 import audio
 from nadeshiko import NadeshikoClient, NadeshikoError, Segment
+from tools import load_theme, save_theme, token_class
 
 REQUIRED_EXAMPLE_CYCLE_COUNT = 7
-
-# ── POS → chip class ────────────────────────────────────────────────────────
-
-
-def _token_class(pos: str) -> str:
-    token = "token-chip-"
-    match pos:
-        case "動詞":
-            return token + "verb"
-        case "名詞":
-            return token + "noun"
-        case "形容詞" | "形状詞":
-            return token + "adj"
-        case "副詞":
-            return token + "adv"
-        case _:
-            return token + "other"
-
 
 # ── App ─────────────────────────────────────────────────────────────────────
 
@@ -303,6 +287,12 @@ TokenChip:hover {
     def _on_replay(self) -> None:
         self.action_replay()
 
+    async def on_mount(self) -> None:
+        self.theme = load_theme()  # your load function from before
+
+        # Hook into theme changes
+        self.theme_changed_signal.subscribe(self, self.on_theme_changed)
+
     async def on_unmount(self) -> None:
         """Called when the app is shutting down."""
         # Append self.history list to history.txt file
@@ -452,7 +442,7 @@ TokenChip:hover {
             TokenChip(
                 tok.surface,
                 tok.reading,
-                classes=f"token-chip {_token_class(tok.pos)}",
+                classes=f"token-chip {token_class(tok.pos)}",
             )
             for tok in (seg.text_ja.tokens or [])
         ]
@@ -478,6 +468,10 @@ TokenChip:hover {
 
     def _log(self, msg: str) -> None:
         self.query_one("#log-panel", RichLog).write(msg)
+
+    def on_theme_changed(self, new_theme: Theme) -> None:
+        """Called whenever the theme changes (including via Command Palette)."""
+        save_theme(new_theme.name)
 
 
 # ── Entry point ─────────────────────────────────────────────────────────────
