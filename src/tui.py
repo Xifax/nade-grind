@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import logging
 import os
 import random
 import sys
@@ -25,7 +26,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pyperclip
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -311,7 +312,7 @@ TokenChip:hover {
     @work(exclusive=True, thread=False)
     async def _delete_word(self) -> None:
         self._words.remove(self.current_word)
-        self._words_file.write_text("\n".join(self._words))
+        self._words_file.write_text("\n".join(self._words), encoding="utf-8")
         self._log(
             f"Removed [bold red]{self.current_word}[/bold red] from [yellow]{self._words_file}[/yellow]"
         )
@@ -347,8 +348,7 @@ TokenChip:hover {
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._log(
-                f"[red]API error {exc.status}: {exc.code} — {exc.detail}[/red]")
+            self._log(f"[red]API error {exc.status}: {exc.code} — {exc.detail}[/red]")
             self.is_loading = False
             return
         except Exception as exc:
@@ -385,8 +385,7 @@ TokenChip:hover {
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._log(
-                f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
+            self._log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
             self.is_loading = False
             return
         except Exception as exc:
@@ -402,8 +401,7 @@ TokenChip:hover {
         # save segments if user wants different example
         self._segments = segments
         self._cycle_segments = itertools.cycle(self._segments)
-        self.query_one("#lbl-example-count",
-                       Label).update(f"examples: {len(segments)}")
+        self.query_one("#lbl-example-count", Label).update(f"examples: {len(segments)}")
 
         # cycle through segments in order, if not a lot of them
         # FIX: first sentence showing twice (check order and how __next__ is
@@ -482,23 +480,40 @@ TokenChip:hover {
 # ── Entry point ─────────────────────────────────────────────────────────────
 
 
+def get_app_dir() -> Path:
+    """Get the directory containing the executable (try to fix Nuitka shenaningans)~"""
+    if getattr(sys, "frozen", False):
+        # Nuitka onefile/standalone: sys.executable is the .exe
+        _base_dir = Path(sys.executable).parent
+    else:
+        # Normal interpreter: use the script's own directory
+        _base_dir = Path(__file__).parent.parent
+
+    logging.debug(f"App directory: {_base_dir}")
+    return _base_dir / ".env"
+
+
 def load_words(path: Path) -> list[str]:
     words = [w.strip() for w in path.read_text(encoding="utf-8").splitlines()]
     words = [w for w in words if w and not w.startswith("#")]
     if not words:
-        print(f"Error: no words found in {path}", file=sys.stderr)
+        logging.error(f"Error: no words found in {path}")
         sys.exit(1)
     return words
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Nadeshiko Drill. Drill word list using examples from Nadeshiko API.",
+        description="Nadeshiko Drill. Grind word list using examples from Nadeshiko API.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument(
-        "words_file", type=Path, help="Path to word list (.txt, one word per line)"
+        "words_file",
+        nargs="?",
+        default="words.txt",
+        type=Path,
+        help="Path to word list (.txt, one word per line)",
     )
     parser.add_argument(
         "--key",
@@ -508,31 +523,33 @@ def main() -> None:
     args = parser.parse_args()
 
     if not args.words_file.exists():
-        print(f"Error: file not found: {args.words_file}", file=sys.stderr)
+        logging.error(f"Error: file not found: {args.words_file}")
         sys.exit(1)
 
-    load_dotenv()
+    env_path = get_app_dir()
+
+    load_dotenv(dotenv_path=env_path)
+    logging.debug(f"Loaded .env from: {env_path}")
     api_key = os.environ.get("NADESHIKO_API_KEY")
 
     if not api_key:
         api_key = args.key
         try:
             api_key = input("Nadeshiko API key: ").strip()
+            # TODO: make test call to check key?
             # Save to .env if it does not exist
-            if not os.path.exists(".env"):
-                with open(".env", "a") as f:
-                    f.write(f"NADESHIKO_API_KEY={api_key}\n")
+            set_key(env_path, "NADESHIKO_API_KEY", api_key)
 
         except (EOFError, KeyboardInterrupt):
             sys.exit(0)
         if not api_key:
-            print("Error: API key is required", file=sys.stderr)
+            logging.error("Error: API key is required")
             sys.exit(1)
 
     words = load_words(args.words_file)
     client = NadeshikoClient(api_key)
 
-    print(f"Loaded {len(words)} word(s) from {args.words_file}")
+    logging.info(f"Loaded {len(words)} word(s) from {args.words_file}")
     NadeshikoApp(words=words, client=client, words_file=args.words_file).run()
 
 

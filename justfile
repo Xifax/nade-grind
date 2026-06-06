@@ -6,3 +6,9 @@ export:
 
 lint:
   ruff format .
+
+compile-win:
+  uv run compile_by_nuitka.py windows
+
+compile-linux:
+  uv run compile_by_nuitka.py linux

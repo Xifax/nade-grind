@@ -140,7 +140,7 @@ def main():
         if word:
             words.append(word)
 
-    with open("words.txt", "a") as f:
+    with open("words.txt", "a", encoding="utf-8") as f:
         f.write("\n".join(words) + "\n")
 
 
