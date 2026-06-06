@@ -10,6 +10,15 @@ Idea:
 
 ![demo](data/demo.svg)
 
+## Binaries
+
+TODO: upload to GitLab
+
+By default app wil try to read `words.txt` from the current directory.
+You can also drag and drop a `.txt` file onto the executable to use it.
+
+## How to use
+
 ```bash
 # specify Anki decks & fields in src/export.py:107,117 to grind
 uv run src/export.py
@@ -27,12 +36,22 @@ uv run src/tui.py words.txt
 [x] basic stats
 [x] fetch different example for this item hotkey
 [x] find definition | copy to clipboard | etc, context
+[x] add option to remove current item from input file
 [x] clickable tokens
-[ ] clickable image link
-[ ] add cool info
+[x] clickable image link
+[x] history shenanigans
+[x] build for Windows
+[x] drag and drop txt files
+[x] launch with 'words.txt' as default argument
+[x] basic GitLab page
+[x] add cool info
+[ ] tweak letter margin for JP text on Windows
+[ ] save chosen theme
 [ ] open in YouGlish
-[ ] history shenanigans
-[ ] llm session export
+[ ] llm session export (create automatically, on quit, write to session.txt file)
+[ ] Linux build and test
+[ ] include example txt data in build (?)
+[ ] think how to distribute ~ single exe? zip? appimage?
 
 ## SUPER TODO:
 
