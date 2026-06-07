@@ -3,9 +3,8 @@ import platform
 import subprocess
 import sys
 
-# Define the paths to your resources
+# Include example txt
 RESOURCES = [
-    # Example paths for custom file movement
     ("words.txt", "words.txt"),
 ]
 
@@ -69,6 +68,8 @@ def main(env):
 
     print("Building with Nuitka...")
     build_with_nuitka(env)
+
+    copy_resources()
 
     print(
         f"Build completed successfully! The binary is located in the '{OUTPUT_DIR}' directory."

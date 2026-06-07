@@ -1,0 +1,15 @@
+layout {
+    tab name="Nadeshiko" {
+        pane split_direction="vertical" {
+            pane name="App" size="65%" {
+                command "uv"
+                args "run" "textual" "run" "--dev" "src/tui.py"
+                focus true
+            }
+            pane name="Textual Console" {
+                command "uv"
+                args "run" "textual" "console"
+            }
+        }
+    }
+}

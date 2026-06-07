@@ -1,5 +1,5 @@
 ---
-
+import { withBase } from "../utils/url";
 ---
 
 <html lang="en">
@@ -17,11 +17,33 @@
       <header>
         <h1>Nadeshiko Grind</h1>
       </header>
+
       <section>
         Tool to grind/shadow Japanese words & sentences using
         <a href="https://nadeshiko.co">Nadeshiko</a>
         anime examples.
       </section>
+
+      <section>
+            <div class="screenshot-frame">
+              <a href="#download">
+                <video
+                  autoplay
+                  loop
+                  muted
+                  playsinline
+                  poster={withBase("poster.webp")}
+                  class="screenshot-video"
+                >
+                  <source src={withBase("demo.webm")} type="video/webm" />
+                  <source src={withBase("demo.mp4")} type="video/mp4" />
+                </video>
+              </a>
+            </div>
+          </div>
+
+      </section>
+
       <section>
         <h3>Situation</h3>
         <p>Imagine, you have tricky 🗾 words from different apps, that don't stick well in your memory.
@@ -39,7 +61,8 @@
           <li>Install from repo or download binary</li>
           <li>Get your words in a plain text file: export from Anki/Lute/LanguageReactor/etc, or save them into text file while you read/watch something</li>
           <li>Get API key from Nadeshiko <a href="https://nadeshiko.co/user/developer">dev page</a> (requires free registration)</li>
-          <li>Launch app with the text file as an argument</li>
+          <li>Launch app with the text file as an argument (defaults to words.txt)</li>
+          <li>You may also drag and drop your text file onto the app executable</li>
           <li>Go through words randomly or in original order</li>
           <li>Fetch multiple examples for each word (if there are any)</li>
           <li>If you encounter an unkown word in a sentence, you may click on it to get a new example</li>
@@ -48,15 +71,96 @@
         </ol>
       </section>
 
+      <section id="download">
+        <h3>Binaries</h3>
+        <button id="win"><a href="#">Windows EXE</a></button>
+        <button id="linux"><a href="#">Linux BIN</a></button>
+        <button id="source"><a href="https://gitlab.com/demi.log/anki_export">Source code</a></button>
+      </section>
+
+
       <section>
         <h3>Disclaimer</h3>
         <p>This app is not affiliated with Nadeshiko, nor with any of the creators of the service. It is just a <em>fun</em> experiment,
         made as a procrastination exercise in futility, instead of studying Anki cards and reading detective novels.</p>
         <p>You may encounter some 🐞 </p>
-        </section>
-        <footer>
-        <p>Written by <a href="https://gitlab.com/demi.log">xifax</a> and is available under <a href="...LICENSE">MIT license</a></p>
-        </footer>
+      </section>
+
+      <footer>
+        <p>Written by <a href="https://gitlab.com/demi.log">xifax</a> and is available under
+        <a href="https://gitlab.com/demi.log/anki_export/-/raw/main/LICENSE">MIT license</a></p>
+      </footer>
+
     </main>
   </body>
 </html>
+
+<style>
+
+:root {
+  --color-border: rgba(255, 255, 255, 0.1);
+  --border-subtle: var(--color-border);
+  --radius-lg: 6px;
+}
+
+.screenshot-frame {
+  /* faster for mouse tracking */
+  transition: transform 0.2s ease-out;
+  transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) scale(1);
+}
+
+.screenshot-frame:hover {
+}
+
+.screenshot-video {
+  width: 90%;
+  height: auto;
+  display: block;
+}
+
+.screenshot-image {
+  width: 90%;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+#download a {
+  text-decoration: none;
+}
+
+#download button {
+  transition: all 0.25s ease;
+}
+
+/* Different hover colors per button */
+button:hover { background-color: #4CAF50;}
+#win:hover { background-color: #0078d4; }
+#linux:hover { background-color: #f39c12; }
+#source:hover { background-color: #6e40c9; }
+
+
+</style>
+
+<script>
+// Follow the mouse!
+const frame = document.querySelector('.screenshot-frame');
+
+frame.addEventListener('mousemove', (e) => {
+  const rect = frame.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  // sensitivity
+  const rx = (y / rect.height - 0.5) * -20;
+  const ry = (x / rect.width - 0.5) * 25;
+
+  frame.style.setProperty('--rx', `${rx}deg`);
+  frame.style.setProperty('--ry', `${ry}deg`);
+});
+
+// Reset to initial position
+frame.addEventListener('mouseleave', () => {
+  frame.style.setProperty('--rx', '0deg');
+  frame.style.setProperty('--ry', '-0deg');
+});
+</script>

@@ -1,0 +1,46 @@
+image: node:lts
+
+stages:
+  - build
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+    - astro/node_modules/
+
+variables:
+  REPO_NAME: "nade_grind"
+  PUBLIC_BASE: "/nade-grind/"
+
+build:
+  stage: build
+  script:
+    - echo "Building Astro project..."
+    - cd astro
+    - echo "Installing dependencies..."
+    - npm install
+    - npm run build
+    - echo "Moving build output to public folder..."
+    - mkdir -p ../public
+    - cp -r dist/* ../public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 hour
+
+deploy-pages:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - echo "Deploying to GitLab Pages..."
+  pages: true
+  artifacts:
+    paths:
+      - public
+    only:
+      - main
+  # rules:
+  #   - if: $CI_COMMIT_BRANCH == "feature/gitlab-page"
+  #
