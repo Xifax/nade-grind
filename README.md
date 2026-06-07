@@ -1,9 +1,9 @@
-# Nadeshiko Anki Grind
+# Nadeshiko Anki/Text Grind
 
 Idea:
 
 0. query grindable Anki cards based on a specific criteria (leeches, low ease,
-   new cards, old cards, etc)
+   new cards, old cards, etc) OR just save some words to text file
 1. export those cards from Anki via AnkiConnect to plain text
 2. grind them using Nadeshiko examples, randomly or in sequence
 3. copy current item in clipboard (external lookup?), allow to prune it from input file (seen too many times)
