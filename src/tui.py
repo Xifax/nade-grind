@@ -42,6 +42,19 @@ from tools import load_theme, save_theme, token_class
 
 REQUIRED_EXAMPLE_CYCLE_COUNT = 7
 
+# ── Log to file ─────────────────────────────────────────────────────────────
+
+logging.basicConfig(
+    # catch almost everything
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('nade.log', encoding='utf-8'),
+        # DEBUG ONLY -> will break TUI composition
+        # logging.StreamHandler()
+    ]
+)
+
 # ── App ─────────────────────────────────────────────────────────────────────
 
 
@@ -520,6 +533,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if not args.words_file.exists():
+        print(f"Error: file not found: {args.words_file}")
         logging.error(f"Error: file not found: {args.words_file}")
         sys.exit(1)
 
@@ -533,9 +547,21 @@ def main() -> None:
         api_key = args.key
         try:
             api_key = input("Nadeshiko API key: ").strip()
-            # TODO: make test call to check key?
+
+            # Make test call to check key
+            try:
+                import asyncio
+                test_client = NadeshikoClient(api_key, timeout=2.0)
+                print("Testing API key...")
+                _ = asyncio.run(test_client.search("あ", n=2, exact_match=False))
+            except NadeshikoError as exc:
+                logging.error(f"There is a problem with API key: {exc}")
+                print(f"Testing API error {exc.status}: {exc.code} ~ {exc.detail}")
+                sys.exit(1)
+
             # Save to .env if it does not exist
             set_key(env_path, "NADESHIKO_API_KEY", api_key)
+            logging.info(f"{env_path} updated")
 
         except (EOFError, KeyboardInterrupt):
             sys.exit(0)

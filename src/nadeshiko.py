@@ -189,7 +189,7 @@ class NadeshikoClient:
                 media = iter(data["includes"]["media"].items())
                 for raw in data["segments"]:
                     try:
-                        # Get media name
+                        # Try to get media name >.<
                         name = next(media)[1]["nameJa"]
                     except Exception:
                         name = "NoName"
