@@ -319,7 +319,7 @@ TokenChip:hover {
     async def _delete_word(self) -> None:
         self._words.remove(self.current_word)
         self._words_file.write_text("\n".join(self._words), encoding="utf-8")
-        self._log(
+        self._ui_log(
             f"Removed [bold red]{self.current_word}[/bold red] from [yellow]{self._words_file}[/yellow]"
         )
 
@@ -350,20 +350,20 @@ TokenChip:hover {
     async def _fetch_word(self, word: str) -> None:
         self.current_word = word
         self.is_loading = True
-        self._log(f"Looking up token [bold cyan]{word}[/bold cyan] …")
+        self._ui_log(f"Looking up token [bold cyan]{word}[/bold cyan] …")
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._log(f"[red]API error {exc.status}: {exc.code} — {exc.detail}[/red]")
+            self._ui_log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
             self.is_loading = False
             return
         except Exception as exc:
-            self._log(f"[red]Request failed: {exc}[/red]")
+            self._ui_log(f"[red]Request failed: {exc}[/red]")
             self.is_loading = False
             return
 
         if not segments:
-            self._log(f"[yellow]No results for [bold]{word}[/bold][/yellow]")
+            self._ui_log(f"[yellow]No results for [bold]{word}[/bold][/yellow]")
             self.is_loading = False
             return
 
@@ -386,21 +386,21 @@ TokenChip:hover {
         self._history.append(word)
 
         self.is_loading = True
-        self._log(f"Searching for [bold cyan]{word}[/bold cyan] …")
+        self._ui_log(f"Searching for [bold cyan]{word}[/bold cyan] …")
 
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
+            self._ui_log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
             self.is_loading = False
             return
         except Exception as exc:
-            self._log(f"[red]Request failed: {exc}[/red]")
+            self._ui_log(f"[red]Request failed: {exc}[/red]")
             self.is_loading = False
             return
 
         if not segments:
-            self._log(f"[yellow]No results for [bold]{word}[/bold][/yellow]")
+            self._ui_log(f"[yellow]No results for [bold]{word}[/bold][/yellow]")
             self.is_loading = False
             return
 
@@ -464,7 +464,7 @@ TokenChip:hover {
 
         self.query_one("#btn-replay", Button).disabled = False
 
-        self._log(
+        self._ui_log(
             f"[green]✓[/green] [bold]{seg.text_ja.content}[/bold] "
             f"— [dim]{seg.text_en.content}[/dim]"
         )
@@ -476,10 +476,10 @@ TokenChip:hover {
 
     def _play(self, url: str) -> None:
         audio.play_url(
-            url, on_error=lambda e: self._log(f"[red]Audio error: {e}[/red]")
+            url, on_error=lambda e: self._ui_log(f"[red]Audio error: {e}[/red]")
         )
 
-    def _log(self, msg: str) -> None:
+    def _ui_log(self, msg: str) -> None:
         self.query_one("#log-panel", RichLog).write(msg)
 
     def on_theme_changed(self, new_theme: Theme) -> None:
