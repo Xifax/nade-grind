@@ -1,11 +1,11 @@
 """
-Nadeshiko Drill.
+Nadeshiko Grind.
 Drill word list using examples from Nadeshiko API.
 
 Usage:
-    python app.py words.txt                         # prompts for API key
-    NADESHIKO_API_KEY=xxx python app.py words.txt
-    python app.py words.txt --key YOUR_KEY
+    uv run python src/tui.py words.txt                         # prompts for API key
+    NADESHIKO_API_KEY=xxx uv run python src/tui.py             # reads from words.txt by default
+    uv run python src/tui.py words.txt --key YOUR_KEY          # use api key, other than in .env
 
 Keyboard shortcuts:
     Space / N   ~ fetch next/random word and example sentence
@@ -47,12 +47,13 @@ REQUIRED_EXAMPLE_CYCLE_COUNT = 7
 logging.basicConfig(
     # catch almost everything
     level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('nade.log', encoding='utf-8'),
+        logging.FileHandler("nade.log", encoding="utf-8"),
         # DEBUG ONLY -> will break TUI composition
         # logging.StreamHandler()
-    ]
+        # use textual console, see justfile:debug
+    ],
 )
 
 # ── App ─────────────────────────────────────────────────────────────────────
@@ -354,7 +355,9 @@ TokenChip:hover {
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._ui_log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
+            self._ui_log(
+                f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]"
+            )
             self.is_loading = False
             return
         except Exception as exc:
@@ -391,7 +394,9 @@ TokenChip:hover {
         try:
             segments = await self._client.search(word, n=50, exact_match=False)
         except NadeshikoError as exc:
-            self._ui_log(f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]")
+            self._ui_log(
+                f"[red]API error {exc.status}: {exc.code} ~ {exc.detail}[/red]"
+            )
             self.is_loading = False
             return
         except Exception as exc:
@@ -551,6 +556,7 @@ def main() -> None:
             # Make test call to check key
             try:
                 import asyncio
+
                 test_client = NadeshikoClient(api_key, timeout=2.0)
                 print("Testing API key...")
                 _ = asyncio.run(test_client.search("あ", n=2, exact_match=False))
