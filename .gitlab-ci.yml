@@ -39,8 +39,6 @@ deploy-pages:
   artifacts:
     paths:
       - public
-    only:
-      - main
   # rules:
   #   - if: $CI_COMMIT_BRANCH == "feature/gitlab-page"
   #
