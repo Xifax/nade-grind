@@ -544,6 +544,7 @@ def main() -> None:
 
     env_path = get_app_dir()
 
+    # TODO: move .env to userdirs
     load_dotenv(dotenv_path=env_path)
     logging.debug(f"Loaded .env from: {env_path}")
     api_key = os.environ.get("NADESHIKO_API_KEY")

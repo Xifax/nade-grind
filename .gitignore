@@ -16,3 +16,4 @@ lute_words.txt
 *.log
 .clj-kondo
 .lsp
+!data/words.txt
