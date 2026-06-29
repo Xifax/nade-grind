@@ -11,7 +11,7 @@ cache:
 
 variables:
   REPO_NAME: "nade_grind"
-  PUBLIC_BASE: "/nade-grind/"
+  PUBLIC_BASE: "/nade_grind/"
 
 build:
   stage: build
