@@ -69,6 +69,7 @@ def main(env):
     print("Building with Nuitka...")
     build_with_nuitka(env)
 
+    # TODO: do not use on Windows
     copy_resources()
 
     print(
