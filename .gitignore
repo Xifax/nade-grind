@@ -14,3 +14,5 @@ history.txt
 lute_words.txt
 *.csv
 *.log
+.clj-kondo
+.lsp
