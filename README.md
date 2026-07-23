@@ -1,6 +1,6 @@
 # Nadeshiko Anki Grind
 
-[https://xifax.gitlab.io/nade_grind/](App page)
+[App page](https://xifax.gitlab.io/nade_grind/)
 
 Idea:
 
