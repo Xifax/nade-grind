@@ -1,5 +1,7 @@
 # Nadeshiko Anki Grind
 
+[https://xifax.gitlab.io/nade_grind/](App page)
+
 Idea:
 
 0. query grindable Anki cards based on a specific criteria (leeches, low ease,
@@ -12,8 +14,6 @@ Idea:
 ![demo](astro/public/poster.webp)
 
 ## Binaries
-
-TODO: upload to GitLab
 
 By default app wil try to read `words.txt` from the current directory.
 You can also drag and drop a `.txt` file onto the executable to use it.

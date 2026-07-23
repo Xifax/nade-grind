@@ -56,7 +56,7 @@ import { withBase } from "../utils/url";
 
       <section>
         <h3>Situation</h3>
-        <p>Imagine, you have tricky 🗾 words from different apps, that don't stick well in your memory.
+        <p>Imagine, you have tricky 🗾 words from different apps, those words don't stick well in your memory.
         You save them to Anki, print them on stickers, draw them on your bathroom walls, etc. Yet it helps little.</p>
         <p>Once, a wise balding Esperanto man from YouTube told me, that sometimes you need to just grind the sentences:
         repeat the words multiple times in different context, even if it's hard. </p>
@@ -89,6 +89,18 @@ import { withBase } from "../utils/url";
         <button id="words"><a href="https://gitlab.com/xifax/nade_grind/-/raw/master/data/words.txt">Example words</a></button>
       </section>
 
+      <section>
+        <h3>Further thoughts</h3>
+        <p>If not exporting words from Anki, Lute, or browser , we can save them manually, or use some kind of tool.
+        I tried to prototype some simple plugins that save selection to a text file, but not sure how useful it is, for now.
+        Here is the link for Anki one (stupid simple). </p>
+        <ul>
+        <li>Maybe web version with profile and local storage would be more useful, than this TUI app? </li>
+        <li>Something akin to Monkeytype but for learning Japanese</li>
+        <li>Web app would be easier to sync with other tools, web dictionaries, AnkiConnect and so on</li>
+        <li>Need to ask for API key from user to save in their profile ~> can it be automated? </li>
+        </ul>
+      </section>
 
       <section>
         <h3>Disclaimer</h3>
@@ -127,6 +139,7 @@ import { withBase } from "../utils/url";
   width: 90%;
   height: auto;
   display: block;
+  border-radius: var(--radius-lg);
 }
 
 .screenshot-image {
