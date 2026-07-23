@@ -31,29 +31,8 @@ uv run src/tui.py words.txt
 
 ## TODO:
 
-    [x] key to .env
-    [x] fix source name
-    [x] images
-    [x] basic stats
-    [x] fetch different example for this item hotkey
-    [x] find definition | copy to clipboard | etc, context
-    [x] add option to remove current item from input file
-    [x] clickable tokens
-    [x] clickable image link
-    [x] history shenanigans
-    [x] build for Windows
-    [x] drag and drop txt files
-    [x] launch with 'words.txt' as default argument
-    [x] basic GitLab page
-    [x] add cool info
-    [x] save chosen theme
-    [x] debug setup with Textual (fix _log)
     [ ] tweak letter margin for JP text on Windows
-    [x] record webm and normal, non-svg screenshot for docs and Gitlab page
-    [ ] think how to distribute ~ single exe? zip? appimage?
     [ ] llm session export (create automatically, on quit, write to session.txt file)
-    [x] Linux build and test
-    [ ] include example txt data in build (?)
     [ ] semi-random mode ~> by frequency
     [-] open in YouGlish
 
